@@ -5,14 +5,20 @@
  */
 package texteditorlist;
 
+import java.awt.Font;
+import java.awt.font.TextAttribute;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import static java.lang.reflect.Array.set;
+import java.text.AttributedString;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledEditorKit;
 import sun.util.logging.PlatformLogger;
 
@@ -43,12 +49,13 @@ public class TextEditorFrame extends javax.swing.JFrame {
         loadButton = new javax.swing.JButton();
         quitButton = new javax.swing.JButton();
         statusField = new javax.swing.JTextField();
-        boldButton = new javax.swing.JToggleButton();
-        italicsButton = new javax.swing.JToggleButton();
-        underlineButton = new javax.swing.JToggleButton();
         fontSizeComboBox = new javax.swing.JComboBox();
         jScrollPane2 = new javax.swing.JScrollPane();
         editorPane = new javax.swing.JEditorPane();
+        boldButton = new javax.swing.JButton();
+        italicsButton = new javax.swing.JButton();
+        resetButton = new javax.swing.JButton();
+        fontNameComboBox = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -82,17 +89,8 @@ public class TextEditorFrame extends javax.swing.JFrame {
 
         statusField.setEditable(false);
 
-        boldButton.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
-        boldButton.setText("B");
-
-        italicsButton.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        italicsButton.setText("I");
-
-        underlineButton.setText("U");
-
         fontSizeComboBox.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         fontSizeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Font Size", "12", "14", "18", "24", "36", "48" }));
-        fontSizeComboBox.setSelectedIndex(2);
         fontSizeComboBox.setToolTipText("");
         fontSizeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -102,6 +100,35 @@ public class TextEditorFrame extends javax.swing.JFrame {
 
         jScrollPane2.setViewportView(editorPane);
 
+        boldButton.setText("B");
+        boldButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boldButtonActionPerformed(evt);
+            }
+        });
+
+        italicsButton.setText("I");
+        italicsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                italicsButtonActionPerformed(evt);
+            }
+        });
+
+        resetButton.setText("R");
+        resetButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetButtonActionPerformed(evt);
+            }
+        });
+
+        fontNameComboBox.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
+        fontNameComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Font Name", "Times Roman", "Vladimir Script", "Wide Latin" }));
+        fontNameComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fontNameComboBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -109,11 +136,11 @@ public class TextEditorFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 677, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(boldButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(boldButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(saveButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -121,8 +148,8 @@ public class TextEditorFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(loadButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(underlineButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(resetButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(quitButton)
@@ -130,7 +157,9 @@ public class TextEditorFrame extends javax.swing.JFrame {
                                 .addComponent(statusField))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(fontSizeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 185, Short.MAX_VALUE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(fontNameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE)))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -143,14 +172,17 @@ public class TextEditorFrame extends javax.swing.JFrame {
                     .addComponent(quitButton)
                     .addComponent(statusField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(newButton))
-                .addGap(9, 9, 9)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(boldButton)
-                    .addComponent(italicsButton)
-                    .addComponent(underlineButton)
-                    .addComponent(fontSizeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(7, 7, 7)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(fontSizeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fontNameComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(boldButton)
+                        .addComponent(italicsButton)
+                        .addComponent(resetButton)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 211, Short.MAX_VALUE))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE))
         );
 
         pack();
@@ -202,10 +234,77 @@ public class TextEditorFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_loadButtonActionPerformed
 
     private void fontSizeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontSizeComboBoxActionPerformed
-       
+        Font i = editorPane.getFont();
+        int indexnumber = fontSizeComboBox.getSelectedIndex();
+        int fontsize = 0;
+        if(indexnumber==1)
+            fontsize = 12;
+        if(indexnumber==2)
+            fontsize = 14;
+        if(indexnumber==3)
+            fontsize = 18;
+        if(indexnumber==4)
+            fontsize = 24;
+        if(indexnumber==5)
+            fontsize = 36;
+        if(indexnumber==6)
+            fontsize = 48;
+        Font newsize = new Font(i.getName(), i.getStyle(), fontsize);
+        editorPane.setFont(newsize);
+            
         
         
     }//GEN-LAST:event_fontSizeComboBoxActionPerformed
+
+    private void boldButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boldButtonActionPerformed
+        Font i = editorPane.getFont();
+        Font bold = new Font(i.getName(), Font.BOLD + i.getStyle(), i.getSize() );
+        Font unbold = new Font(i.getName(), Font.PLAIN, i.getSize());
+        Font ital = new Font(i.getName(), Font.ITALIC, i.getSize());
+        
+        if (i.isBold() == false)
+            editorPane.setFont(bold);
+        else if (i.isBold() & i.isItalic() == true)
+            editorPane.setFont(ital);
+        else
+            editorPane.setFont(unbold);
+
+   
+    }//GEN-LAST:event_boldButtonActionPerformed
+
+    private void italicsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_italicsButtonActionPerformed
+        Font i = editorPane.getFont();
+        Font ital = new Font(i.getName(), Font.ITALIC + i.getStyle(), i.getSize());
+        Font unital = new Font(i.getName(), Font.PLAIN, i.getSize());
+        Font bold = new Font(i.getName(), Font.BOLD, i.getSize() );
+        
+        if (i.isItalic() == false)
+            editorPane.setFont(ital);
+        else if (i.isBold() & i.isItalic() == true)
+            editorPane.setFont(bold);
+        else
+            editorPane.setFont(unital);
+    }//GEN-LAST:event_italicsButtonActionPerformed
+
+    private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
+    Font i = editorPane.getFont();
+    Font plain = new Font("Times Roman", Font.PLAIN, i.getSize());
+    editorPane.setFont(plain);
+    }//GEN-LAST:event_resetButtonActionPerformed
+
+    private void fontNameComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontNameComboBoxActionPerformed
+       Font i = editorPane.getFont();
+       int indexnumber = fontNameComboBox.getSelectedIndex();
+       String fontname = null;
+       if(indexnumber==1)
+           fontname = "Times Roman";
+       else if(indexnumber==2)
+           fontname = "Vladimir Script";
+       else if(indexnumber==3)
+           fontname = "Wide Latin";
+       Font newname = new Font(fontname, i.getStyle(), i.getSize());  
+       editorPane.setFont(newname);
+    }//GEN-LAST:event_fontNameComboBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -243,16 +342,17 @@ public class TextEditorFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToggleButton boldButton;
+    private javax.swing.JButton boldButton;
     private javax.swing.JEditorPane editorPane;
+    private javax.swing.JComboBox fontNameComboBox;
     private javax.swing.JComboBox fontSizeComboBox;
-    private javax.swing.JToggleButton italicsButton;
+    private javax.swing.JButton italicsButton;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton loadButton;
     private javax.swing.JButton newButton;
     private javax.swing.JButton quitButton;
+    private javax.swing.JButton resetButton;
     private javax.swing.JButton saveButton;
     private javax.swing.JTextField statusField;
-    private javax.swing.JToggleButton underlineButton;
     // End of variables declaration//GEN-END:variables
 }
